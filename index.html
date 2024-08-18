@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScriptBitDigiSyGma</title>
+    <!--
+MIT License
+Copyright ©2024 | Bangkit I. D.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+    <link href="https://fonts.googleapis.com/css2?family=Cascadia+Code&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1e2b1f; 
+            color: #b0b0b0; 
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            width: 80%;
+            max-width: 800px;
+            padding: 20px;
+            border: 2px solid #7cbf7c; 
+            background-color: #263d2a; 
+            box-shadow: 0 0 15px rgba(124, 191, 124, 0.3); 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 450px;
+            position: relative;
+        }
+        #game-output {
+            white-space: pre-wrap;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            text-align: left;
+            color: #d0d0d0; 
+            flex-grow: 1;
+        }
+        #fixed-title {
+            position: fixed;
+            top: 40px; 
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            font-size: 2em;
+            color: #d0d0d0;
+            font-family: 'Fira Code', monospace;
+        }
+        #options-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px; 
+            margin-top: 20px;
+        }
+        .option-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-family: 'IBM Plex Mono', monospace;
+            background-color: #3a5743; 
+            border: 2px solid #7cbf7c; 
+            color: #d0d0d0; 
+            cursor: pointer;
+        }
+        .option-button:hover {
+            background-color: #4b6f56; 
+        }
+        .entry {
+            margin-bottom: 20px; 
+        }
+        .info-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            background-color: #3a5743;
+            color: #d0d0d0;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .info-button:hover {
+            background-color: #4b6f56;
+        }
+        #info-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #263d2a;
+            color: #d0d0d0;
+            padding: 20px;
+            border: 2px solid #7cbf7c;
+            box-shadow: 0 0 15px rgba(124, 191, 124, 0.5);
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        #info-modal p {
+            margin: 0;
+            font-size: 9px;
+        }
+        #close-modal {
+            background: transparent;
+            border: none;
+            color: #d0d0d0;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 16px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        #close-modal:hover {
+            background-color: #4b6f56;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <button class="info-button" onclick="showModal()">?</button>
+        <div id="fixed-title">SCRIPTBITDIGISYGMA</div>
+        <div id="game-output"></div>
+        <div id="options-container">
+            <button class="option-button" onclick="processOption('Intuisi')">Intuisi</button>
+            <button class="option-button" onclick="processOption('Analisis')">Analisis</button>
+        </div>
+    </div>
+
+    <div id="info-modal">
+        <button id="close-modal" onclick="closeModal()">×</button>
+        <p>SCRIPTBITDIGISYGMA<br></br>Skibidi? Sigma? Sebuah puisi digital di mana puisinya sendiri tak lebih dari sekadar tombol-tombol di bawah.</p>
+    </div>
+    
+    <script>
+    const gameOutput = document.getElementById('game-output');
+    const optionsContainer = document.getElementById('options-container');
+    const infoModal = document.getElementById('info-modal');
+    let optionClicked = false;  
+    let stagePrefix = '';
+
+    function typeWriter(text, i, callback) {
+        if (i < text.length) {
+            if (text.slice(i, i + 3) === "...") {
+                gameOutput.innerHTML += ".";
+                gameOutput.scrollTop = gameOutput.scrollHeight;
+                setTimeout(() => {
+                    gameOutput.innerHTML += ".";
+                    gameOutput.scrollTop = gameOutput.scrollHeight;
+                    setTimeout(() => {
+                        gameOutput.innerHTML += ".";
+                        gameOutput.scrollTop = gameOutput.scrollHeight;
+                        setTimeout(() => typeWriter(text, i + 3, callback), 1000); 
+                    }, 1000);
+                }, 1000);
+            } else if (text.charAt(i) === "!") {
+                gameOutput.innerHTML += text.charAt(i);
+                gameOutput.scrollTop = gameOutput.scrollHeight;
+                setTimeout(() => typeWriter(text, i + 1, callback), 2000); 
+            } else if (text.charAt(i) === "?") {
+                gameOutput.innerHTML += text.charAt(i);
+                gameOutput.scrollTop = gameOutput.scrollHeight;
+                setTimeout(() => typeWriter(text, i + 1, callback), 2000); 
+            } else if (text.charAt(i) === ":") {
+                gameOutput.innerHTML += text.charAt(i);
+                gameOutput.scrollTop = gameOutput.scrollHeight;
+                setTimeout(() => typeWriter(text, i + 1, callback), 1000); 
+            } else if (text.charAt(i) === "\n") {
+                gameOutput.innerHTML += "<br>";  
+                gameOutput.scrollTop = gameOutput.scrollHeight;
+                setTimeout(() => typeWriter(text, i + 1, callback), 2000); 
+            } else {
+                gameOutput.innerHTML += text.charAt(i);
+                gameOutput.scrollTop = gameOutput.scrollHeight;
+                setTimeout(() => typeWriter(text, i + 1, callback), 50); 
+            }
+        } else if (callback) {
+            callback();
+        }
+    }
+
+    function processOption(option) {
+        if (optionClicked) return;  
+        optionClicked = true;  
+        disableOptions();  
+
+        gameOutput.innerHTML += `<p class="entry">&gt; ${option}</p>`;
+        if (option === 'Intuisi') {
+    stagePrefix = 'StageA';
+    const text = `<C:\\>DIGITALPOETRY.EXE\nPlease wait ...\nSyntax confirmed!\n<DIR>\\EXPLORE\nexplore perasaan\nseluruh indera diaktifkan\ncommand prompt menunggu\nsiaga membuka pintu\n`;
+    typeWriter(text, 0, () => showNextStage(`${stagePrefix}1`));
+} else if (option === 'Analisis') {
+    stagePrefix = 'StageB';
+    const text = `<C:\\>DIGITALPOETRY.EXE\nPlease wait ...\nSyntax confirmed!\n<DIR>\\DECOMPOSE\nbit: denyut jantung\ncode: sengatan otak\npixel: sinar penampakan\n\n<DIR>\\RECOMPILE\n0101010110101011\nmenggeliat algoritma\ndesir nadi aliran data\n0101011010101111\npendar sinar jadi\nmaka menjadi!\n`;
+    typeWriter(text, 0, () => showNextStage(`${stagePrefix}1`));  
+} else if (option === 'Kontemplasi') {
+    stagePrefix = 'StageA';
+    const text = `<C:\\>SENSATE\\SC.EXE\nPlease wait ...\nInitializing Sensate Commander\nobserving sector ...\nObservation completed!\n<DIR>\\MEDIATE\npemindai sektor\nmenangkapnya dalam array\nberdenyut serima byte\n\ntampil berbelit:\n      labirin koda\n      sintaks manja\n      gema data\n      hantu lama\n\nfragmen commands C:\\\nkedipan kursor dalam interval\nmata yang pernah kukenal\n\ndengung floppy\nmusik histori\ningatan kembali\npada serat magneti\n\narsip arsip tua\ndalam sistem dekade lama\npulih bersama\ngetar dada\n`;
+    typeWriter(text, 0, () => showNextStage(`${stagePrefix}2`));
+} else if (option === 'Visualisasi') {
+    stagePrefix = 'StageA';
+    const text = `<C:\\>SENSATE\\SC.EXE\nPlease wait ...\nInitializing Sensate Commander\nscanning sector ...\n   > Loading tilas-tilas masa kecil ...\n   > Restoring fragmen kenangan ...\n   > Mapping directory structure ...\nScanning completed!\n<DIR>\\MEDIATE\n               .         .     *.      *    .  .  *.\n     .        *      .  .     .    *    .  *  .  *\n   .         *        bintang ketjiL  *\n       .     di langit   .  *    .       . *  .\n  .       *       .    .     yang tinggi  . *\n  .     .       .     u *    .      .\n  *.     .        k.    *      .      .     *\n  .        .   *       i    *      .\n       *      . .    p   .  *    .       . *  .\n       .  *    .         m  .    .        .\n       .        *      i  .     .    *    .  *\n       .       *       .   m .     *    .\n                      .         .     *.      *    .  .  *.\n`;
+    typeWriter(text, 0, () => showNextStage(`${stagePrefix}2`));
+} else if (option === 'Abstraksi') {
+    stagePrefix = 'StageB';
+    const text = `<C:\\>NEURON\\NC.EXE\nPlease wait ...\nSyntax confirmed!\nInitializing Neuron Commander\npreparing analyzer ...\n    > Sampling data ...\n    > Parsing syntax ...\n    > Detecting rhyme patterns ...\n    > Scanning metaphor ...\n    > Referencing digital archives ...\nPreparation completed!\n<DIR>\\EXECUTE\nteks mengetik teks\nteks memandu teks\nteks menyukai teks\n\nteks yang bahasanya\nterikat oleh irama algoritma\nmatra syntax\nrima browser\nserta penyusunan larik error-tracking\ndan bait dari <!DOCTYPE> hingga </html>\n`;
+    typeWriter(text, 0, () => showNextStage(`${stagePrefix}2`));  
+} else if (option === 'Sintesis') {
+    stagePrefix = 'StageB';
+    const text = `<C:\\>NEURON\\VC.TXT
+Please wait ...
+Initializing Visual Commander
+preparing media ...
+     > Scanning white screen ...
+     > Mapping coordinate ...
+     > Analyzing code system ...
+Preparation completed!
+<DIR>\\EXECUTE
+
+  .==-.                   .-==.     
+   \\()8\`-._  \`.   .\'  _.-\'8()//
+   (88"   ::.  \\\\/  .::   "88)
+    \\_.'\`-::::.(#).::::-'\`._//
+      \`._... .q(_)p. ..._.'
+        ""-..-'|=|'-..-""
+          .""' |p| \`"".
+          |   ||o||   |
+          |   ||e||   |
+          |   ||t||   |
+          |   ||r||   |
+          '   ||y||   '
+           \`--'\`'\`'\`--\`
+\n`;
+    typeWriter(text, 0, () => showNextStage(`${stagePrefix}2`));  
+} else if (option === 'Refleksi') {
+    stagePrefix = 'StageA';
+    const text = `<C:\\>PASSION.EXE\nPlease wait ...\n Dang! It's up to you now!\n <DIR>\CLOSE\n
+     ,     ,
+    (\____/)
+     (_oo_)            terima kasih!
+       (O)           sampai jumpa lagi.
+     __||__    \)
+  []/______\[] /
+  / \______/ \/
+ /    /__\
+(\   /____\
+\n`;
+    typeWriter(text, 0, () => showNextStage(`${stagePrefix}3`));
+} else if (option === 'Introspeksi') {
+    stagePrefix = 'StageA';
+    const text = `<C:\\>PASSION.EXE\nPlease wait ...\n Dang! It's up to you now!\n <DIR>\CLOSE\n
+     ,     ,
+    (\\____/)
+     (_oo_)            terima kasih!
+       (O)           sampai jumpa lagi.
+     __||__    \\)
+  []/______\\[] /
+  / \\______/ \\/
+ /    /__\\
+(\\   /____\\
+\n`;
+    typeWriter(text, 0, () => showNextStage(`${stagePrefix}3`));
+} else if (option === 'Konklusi') {
+    stagePrefix = 'StageB';
+    const text = `<C:\\>LOGIC.EXE\nPlease wait ...\n Dang! It's up to you now!\n <DIR>\CLOSE\n
+     ,     ,
+    (\\____/)
+     (_oo_)            terima kasih!
+       (O)           sampai jumpa lagi.
+     __||__    \\)
+  []/______\\[] /
+  / \\______/ \\/
+ /    /__\\
+(\\   /____\\
+\n`;
+typeWriter(text, 0, () => showNextStage(`${stagePrefix}3`));
+} else if (option === 'Induksi') {
+    stagePrefix = 'StageB';
+    const text = `<C:\\>LOGIC.EXE\nPlease wait ...\n Dang! It's up to you now!\n <DIR>\CLOSE\n
+     ,     ,
+    (\\____/)
+     (_oo_)            terima kasih!
+       (O)           sampai jumpa lagi.
+     __||__    \\)
+  []/______\\[] /
+  / \\______/ \\/
+ /    /__\\
+(\\   /____\\
+\n`;
+typeWriter(text, 0, () => showNextStage(`${stagePrefix}3`));
+} else {
+    const text = 'Unknown action.';
+    typeWriter(text, 0);
+}
+    }
+
+    function showNextStage(stage) {
+        let nextButtons = '';
+        if (stage === 'StageA1') {
+            nextButtons = `
+                <button class="option-button" onclick="processOption('Visualisasi')">Visualisasi</button>
+                <button class="option-button" onclick="processOption('Kontemplasi')">Kontemplasi</button>                    
+            `;
+        } else if (stage === 'StageB1') {
+            nextButtons = `
+                <button class="option-button" onclick="processOption('Abstraksi')">Abstraksi</button>
+                <button class="option-button" onclick="processOption('Sintesis')">Sintesis</button>
+            `;
+        } else if (stage === 'StageA2') {
+            nextButtons = `
+                <button class="option-button" onclick="processOption('Refleksi')">Refleksi</button>
+                <button class="option-button" onclick="processOption('Introspeksi')">Introspeksi</button>
+            `;
+            } else if (stage === 'StageB2') {
+            nextButtons = `
+                <button class="option-button" onclick="processOption('Konklusi')">Konklusi</button>
+                <button class="option-button" onclick="processOption('Induksi')">Induksi</button>
+            `;
+        }
+        optionsContainer.innerHTML = nextButtons;
+        optionClicked = false;  
+    }
+
+    function disableOptions() {
+        const optionButtons = document.querySelectorAll('.option-button');
+        optionButtons.forEach(button => button.disabled = true);
+    }
+
+    function showModal() {
+    	infoModal.style.display
+    = 'block';
+    }
+    
+    function closeModal() {
+    	infoModal.style.display
+    = 'none';
+    }
+</script>
+</body>
+</html>
